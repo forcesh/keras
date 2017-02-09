@@ -755,9 +755,15 @@ class Model(Container):
             else:
                 inputs = self.inputs + self.targets + self.sample_weights
 
+<<<<<<< HEAD
             training_updates = self.optimizer.get_updates(self._collected_trainable_weights,
                                                           self.constraints,
                                                           self.total_loss)
+=======
+            # get trainable weights
+            trainable_weights = collect_trainable_weights(self)
+            training_updates = self.optimizer.get_updates(trainable_weights, self.multipliers, self.constraints, self.total_loss)
+>>>>>>> keras-lrmult-fork
             updates = self.updates + training_updates
 
             # returns loss and metrics. Updates weights at each call.

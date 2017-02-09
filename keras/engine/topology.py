@@ -252,6 +252,7 @@ class Layer(object):
         weights: The concatenation of the lists trainable_weights and
             non_trainable_weights (in this order).
         constraints: Dict mapping weights to constraints.
+        multipliers: Dict mapping weights to learning rates multipliers.
 
     # Methods
         call(x, mask=None): Where the layer's logic lives.
@@ -310,6 +311,10 @@ class Layer(object):
             self.losses = []
         if not hasattr(self, 'constraints'):
             self.constraints = {}  # dict {tensor: constraint instance}
+        if not hasattr(self, 'multipliers'):
+            self.multipliers = {}  # dict {tensor: multiplier value}
+# =======  # TODO: add multipliers property? Probably not, because is not private.
+# >>>>>>> keras-lrmult-fork
         self.built = False
 
         # These properties should be set by the user via keyword arguments.
@@ -1069,6 +1074,7 @@ class InputLayer(Layer):
         self.outbound_nodes = []
         self.constraints = {}
         self.sparse = sparse
+        self.multipliers = {}
 
         if not name:
             prefix = 'input'
@@ -1277,6 +1283,10 @@ class Merge(Layer):
         self.constraints = {}
         self._trainable_weights = []
         self._non_trainable_weights = []
+        self.multipliers = {}
+#== == == = # TODO: removed this list, ok?
+#        self.regularizers = []
+#>>>>>>> keras-lrmult-fork
         self.supports_masking = True
         self.uses_learning_phase = False
         self.input_spec = None  # Compatible with anything.
@@ -1715,6 +1725,7 @@ class Container(Layer):
         trainable_weights (list of variables)
         non_trainable_weights (list of variables)
         constraints (list of tuples (weight, constraint))
+        multipliers (list of tuples (weight, learning_rate_multiplier))
 
     # Methods
         summary
@@ -2141,6 +2152,17 @@ class Container(Layer):
                 cons[key] = value
         return cons
 
+    @property
+    def multipliers(self):
+        mults = {}
+        for layer in self.layers:
+            for key, value in layer.multipliers.items():
+                if key in mults:
+                    raise Exception('Received multiple learning rate multipliers '
+                                    'for one weight tensor: ' + str(key))
+                mults[key] = value
+        return mults
+    
     @property
     def regularizers(self):
         warnings.warn('The `regularizers` attribute of layers/models '
