@@ -664,12 +664,18 @@ class TFOptimizer(Optimizer):
         self.iterations = K.variable(0.)
         self.updates = []
 
-    def get_updates(self, params, constraints, loss):
+    def get_updates(self, params, multipliers, constraints, loss):
         if constraints:
             raise ValueError('TF optimizers do not support '
                              'weights constraints. Either remove '
                              'all weights constraints in your model, '
                              'or use a Keras optimizer.')
+        # TODO: if possible, implements lr_multipliers for TensorFlow optimizers.
+        if multipliers:
+            raise ValueError('This implementation of TF optimizers '
+                             'do not support multipliers.'
+                             'Either remove all multipliers in your '
+                             'model, or use a Keras optimizer.')
         grads = self.optimizer.compute_gradients(loss, params)
         opt_update = self.optimizer.apply_gradients(
             grads, global_step=self.iterations)

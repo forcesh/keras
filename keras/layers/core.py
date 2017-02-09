@@ -768,7 +768,8 @@ class Dense(Layer):
                  W_regularizer=None, b_regularizer=None, activity_regularizer=None,
                  W_constraint=None, b_constraint=None,
                  bias=True, input_dim=None,
-                 W_learning_rate_multiplier=None, b_learning_rate_multiplier=None,
+                 W_learning_rate_multiplier=None,
+                 b_learning_rate_multiplier=None,
                  **kwargs):
         self.init = initializations.get(init)
         self.activation = activations.get(activation)
